@@ -58,6 +58,8 @@ def home():
     <title>Resume Analyzer</title>
     <script>
         function uploadFile() {
+            document.getElementById("output").innerText = "Loading..";
+
             const fileInput = document.getElementById("fileInput");
             if (!fileInput || !fileInput.files.length) {
                 alert("Please select a file.");
@@ -71,12 +73,12 @@ def home():
                 method: "POST",
                 body: formData
             })
-            .then(response => response.json()) // Ensure JSON response
+            .then(response => response.json())
             .then(data => {
-                document.getElementById("output").innerText = data;
+                document.getElementById("output").innerText = JSON.stringify(data, null, 2);
             })
             .catch(error => {
-                document.getElementById("output").innerText = "Error: " + error.message;
+                document.getElementById("output").innerText = "Error: " + error;
             });
         }
     </script>
