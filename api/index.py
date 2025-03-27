@@ -117,9 +117,10 @@ def upload_file():
         return jsonify({"error": "Failed to extract text"}), 500
 
     print("[DEBUG] Successfully extracted text")
-    helpingai_response = send_to_helpingai(text)
-    
-    return jsonify(helpingai_response)
+    response = send_to_helpingai(text)
+    content = response.get("choices", [{}])[0].get("message", {}).get("content", "")
+
+    return jsonify({"content": content})
 
 if __name__ == "__main__":
     print("[DEBUG] Starting Flask server...")
