@@ -2,3 +2,4 @@ flask
 pymupdf
 waitress
 requests
+flask-cors
