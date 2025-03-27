@@ -7,6 +7,8 @@ import requests
 
 app = Flask(__name__)
 
+
+
 def clean_text(text):
     text = unicodedata.normalize("NFKD", text)  # Normalize Unicode characters
     text = re.sub(r'\\u[0-9A-Fa-f]{4}', '', text)  # Remove Unicode escape sequences
@@ -45,7 +47,53 @@ def send_to_helpingai(text):
         }
     )
     return response.json()
+@app.route("/") 
+def home():
+    return """
+    <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resume Analyzer</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; padding: 50px; }
+        #output { margin-top: 20px; white-space: pre-wrap; text-align: left; display: inline-block; max-width: 80%; }
+    </style>
+</head>
+<body>
+    <h2>Upload Your Resume (PDF)</h2>
+    <input type="file" id="fileInput" accept="application/pdf">
+    <button onclick="uploadFile()">Upload</button>
+    <div id="output"></div>
 
+    <script>
+        function uploadFile() {
+            const fileInput = document.getElementById("fileInput");
+            if (!fileInput.files.length) {
+                alert("Please select a file.");
+                return;
+            }
+            
+            const formData = new FormData();
+            formData.append("file", fileInput.files[0]);
+            
+            fetch("http://127.0.0.1:5000/api/upload", {
+                method: "POST",
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById("output").innerText = JSON.stringify(data, null, 2);
+            })
+            .catch(error => {
+                document.getElementById("output").innerText = "Error: " + error;
+            });
+        }
+    </script>
+</body>
+</html>
+    """
 @app.route("/api/upload", methods=["POST"])
 def upload_file():
     print("[DEBUG] Received upload request")
