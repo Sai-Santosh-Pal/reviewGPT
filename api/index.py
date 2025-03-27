@@ -1,13 +1,12 @@
 from flask import Flask, request, jsonify
 import fitz  # PyMuPDF
-import os
 import re
 import unicodedata
 import requests
+from flask_cors import CORS
 
 app = Flask(__name__)
-
-
+CORS(app)  # Enable CORS for frontend requests
 
 def clean_text(text):
     text = unicodedata.normalize("NFKD", text)  # Normalize Unicode characters
@@ -16,11 +15,11 @@ def clean_text(text):
     text = re.sub(r'\s+', ' ', text).strip()  # Remove extra whitespace and newlines
     return text
 
-def pdf_to_text(file, file_path):
+def pdf_to_text(file):
     text = ""
     try:
         file_stream = file.read()  # Read file into memory
-        print(f"[DEBUG] File read into memory from path: {file_path}")
+        print("[DEBUG] File read into memory")
         with fitz.open(stream=file_stream, filetype="pdf") as doc:
             print("[DEBUG] PDF opened successfully")
             for page in doc:
@@ -34,20 +33,21 @@ def send_to_helpingai(text):
     response = requests.post(
         'https://api.helpingai.co/v1/chat/completions',
         headers={
-            'Authorization': 'hl-6bd612ae-c43c-4143-ba20-459b9b9e7544',
+            'Authorization': 'Bearer YOUR_API_KEY',
             'Content-Type': 'application/json'
         },
         json={
             'model': 'helpingai3-raw',
             'messages': [
-                {'role': 'user', 'content': "This is my CV. write a constructive review about my resume and suggest me some recommendation. Keep the tone light and cheerful" + text}
+                {'role': 'user', 'content': "This is my CV. Write a constructive review about my resume and suggest recommendations. Keep the tone light and cheerful. " + text}
             ],
             'temperature': 0.7,
             'max_tokens': 150
         }
     )
     return response.json()
-@app.route("/") 
+
+@app.route("/")
 def home():
     return """
     <!DOCTYPE html>
@@ -78,7 +78,7 @@ def home():
             const formData = new FormData();
             formData.append("file", fileInput.files[0]);
             
-            fetch("http://127.0.0.1:5000/api/upload", {
+            fetch("/api/upload", {  // Updated for Vercel deployment
                 method: "POST",
                 body: formData
             })
@@ -94,6 +94,7 @@ def home():
 </body>
 </html>
     """
+
 @app.route("/api/upload", methods=["POST"])
 def upload_file():
     print("[DEBUG] Received upload request")
@@ -102,8 +103,6 @@ def upload_file():
         return jsonify({"error": "No file part"}), 400
 
     file = request.files["file"]
-    file_path = os.path.abspath(file.filename)  # Get absolute path
-    print(f"[DEBUG] File received: {file.filename}, Absolute Path: {file_path}")
     
     if file.filename == "":
         print("[ERROR] No selected file")
@@ -113,7 +112,7 @@ def upload_file():
         print("[ERROR] Invalid file type")
         return jsonify({"error": "Only PDF files are allowed"}), 400
 
-    text = pdf_to_text(file, file_path)
+    text = pdf_to_text(file)
     if text is None:
         return jsonify({"error": "Failed to extract text"}), 500
 
@@ -122,5 +121,7 @@ def upload_file():
     
     return jsonify(helpingai_response)
 
-# if __name__ == "__main__":
-#     app.run(debug=True)
+if __name__ == "__main__":
+    print("[DEBUG] Starting Flask server...")
+    from waitress import serve
+    serve(app, host="0.0.0.0", port=5000)
