@@ -73,7 +73,7 @@ def home():
             })
             .then(response => response.json()) // Ensure JSON response
             .then(data => {
-                ocument.getElementById("output").innerText = data;
+                document.getElementById("output").innerText = data;
             })
             .catch(error => {
                 document.getElementById("output").innerText = "Error: " + error.message;
