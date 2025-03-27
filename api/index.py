@@ -33,7 +33,7 @@ def send_to_helpingai(text):
     response = requests.post(
         'https://api.helpingai.co/v1/chat/completions',
         headers={
-            'Authorization': 'Bearer YOUR_API_KEY',
+            'Authorization': 'hl-6bd612ae-c43c-4143-ba20-459b9b9e7544',
             'Content-Type': 'application/json'
         },
         json={
