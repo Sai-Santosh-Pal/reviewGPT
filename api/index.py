@@ -78,13 +78,13 @@ def home():
             const formData = new FormData();
             formData.append("file", fileInput.files[0]);
             
-            fetch("/api/upload", {  // Updated for Vercel deployment
+            fetch("http://127.0.0.1:5000/api/upload", {
                 method: "POST",
                 body: formData
             })
-            .then(response => response.json())
+            .then(response => response.text())  // Get plain text response
             .then(data => {
-                document.getElementById("output").innerText = JSON.stringify(data, null, 2);
+                document.getElementById("output").innerHTML = data.replace(/\n/g, "<br>"); // Preserve line breaks
             })
             .catch(error => {
                 document.getElementById("output").innerText = "Error: " + error;
@@ -120,7 +120,7 @@ def upload_file():
     response = send_to_helpingai(text)
     content = response.get("choices", [{}])[0].get("message", {}).get("content", "")
 
-    return jsonify({"content": content})
+    return content
 
 if __name__ == "__main__":
     print("[DEBUG] Starting Flask server...")
