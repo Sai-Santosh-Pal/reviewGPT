@@ -56,20 +56,8 @@ def home():
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Resume Analyzer</title>
-    <style>
-        body { font-family: Arial, sans-serif; text-align: center; padding: 50px; }
-        #output { margin-top: 20px; white-space: pre-wrap; text-align: left; display: inline-block; max-width: 80%; }
-    </style>
-</head>
-<body>
-    <h2>Upload Your Resume (PDF)</h2>
-    <input type="file" id="fileInput" accept="application/pdf">
-    <button onclick="uploadFile()">Upload</button>
-    <div id="output"></div>
-
-    <script>
+    <script defer>
         function uploadFile() {
-            document.getElementById("output").innerHTML = "Loading...";
             const fileInput = document.getElementById("fileInput");
             if (!fileInput.files.length) {
                 alert("Please select a file.");
@@ -78,24 +66,35 @@ def home():
             
             const formData = new FormData();
             formData.append("file", fileInput.files[0]);
-        
+
             fetch("https://reviewgpt.vercel.app/api/upload", {
                 method: "POST",
                 body: formData
             })
-            .then(response => response.json())  // Ensure response is JSON
+            .then(response => response.json()) // Expecting JSON response
             .then(data => {
-                if (data.content) {
-                    document.getElementById("output").innerHTML = data.content.replace(/\n/g, "<br>"); // Format output
+                if (data && typeof data.content === "string") { 
+                    document.getElementById("output").innerHTML = data.content.replace(/\n/g, "<br>");
                 } else {
                     document.getElementById("output").innerText = "Unexpected response format";
                 }
             })
             .catch(error => {
-                document.getElementById("output").innerText = "Error: " + error;
+                document.getElementById("output").innerText = "Error: " + error.message;
             });
         }
     </script>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; padding: 50px; }
+        #output { margin-top: 20px; white-space: pre-wrap; text-align: left; display: inline-block; max-width: 80%; }
+    </style>
+    
+</head>
+<body>
+    <h2>Upload Your Resume (PDF)</h2>
+    <input type="file" id="fileInput" accept="application/pdf">
+    <button onclick="uploadFile()">Upload</button>
+    <div id="output"></div>
 </body>
 </html>
     """
