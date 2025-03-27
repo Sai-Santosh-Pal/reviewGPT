@@ -69,6 +69,7 @@ def home():
 
     <script>
         function uploadFile() {
+            document.getElementById("output").innerHTML = "Loading...";
             const fileInput = document.getElementById("fileInput");
             if (!fileInput.files.length) {
                 alert("Please select a file.");
@@ -77,14 +78,18 @@ def home():
             
             const formData = new FormData();
             formData.append("file", fileInput.files[0]);
-            
-            fetch("http://127.0.0.1:5000/api/upload", {
+        
+            fetch("https://reviewgpt.vercel.app/api/upload", {
                 method: "POST",
                 body: formData
             })
-            .then(response => response.text())  // Get plain text response
+            .then(response => response.json())  // Ensure response is JSON
             .then(data => {
-                document.getElementById("output").innerHTML = data.replace(/\n/g, "<br>"); // Preserve line breaks
+                if (data.content) {
+                    document.getElementById("output").innerHTML = data.content.replace(/\n/g, "<br>"); // Format output
+                } else {
+                    document.getElementById("output").innerText = "Unexpected response format";
+                }
             })
             .catch(error => {
                 document.getElementById("output").innerText = "Error: " + error;
