@@ -126,7 +126,7 @@ def upload_file():
     response = send_to_helpingai(text)
     content = response.get("choices", [{}])[0].get("message", {}).get("content", "")
 
-    return {"content": content})  # ✅ Fixed: Return JSON
+    return jsonify({"content": content}) # ✅ Fixed: Return JSON
 
 if __name__ == "__main__":
     print("[DEBUG] Starting Flask server...")
