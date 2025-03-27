@@ -63,18 +63,19 @@ def home():
                 alert("Please select a file.");
                 return;
             }
-
+        
             const formData = new FormData();
             formData.append("file", fileInput.files[0]);
-
+        
             fetch("https://reviewgpt.vercel.app/api/upload", {
                 method: "POST",
                 body: formData
             })
-            .then(response => response.json()) // Expecting JSON response
+            .then(response => response.json()) // Ensure JSON response
             .then(data => {
-                if (data && typeof data.content === "string") { 
-                    document.getElementById("output").innerHTML = (data.content || "").replace("\n", "<br>");
+                if (data && typeof data.content === "string") {
+                    document.getElementById("output").innerHTML = 
+                        (data.content || "").replace(/\n/g, "<br>"); // ✅ Fixed: Global replace
                 } else {
                     document.getElementById("output").innerText = "Unexpected response format";
                 }
