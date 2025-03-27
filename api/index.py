@@ -73,12 +73,7 @@ def home():
             })
             .then(response => response.json()) // Ensure JSON response
             .then(data => {
-                if (data && typeof data.content === "string") {
-                    document.getElementById("output").innerHTML = 
-                        (data.content || "").replace(/\n/g, "<br>"); // ✅ Fixed: Global replace
-                } else {
-                    document.getElementById("output").innerText = "Unexpected response format";
-                }
+                ocument.getElementById("output").innerText = data;
             })
             .catch(error => {
                 document.getElementById("output").innerText = "Error: " + error.message;
