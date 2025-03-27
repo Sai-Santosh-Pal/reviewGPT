@@ -73,12 +73,16 @@ def home():
                 method: "POST",
                 body: formData
             })
-            .then(response => response.json())
+            .then(response => response.json()) // Ensure JSON response
             .then(data => {
-                document.getElementById("output").innerText = JSON.stringify(data, null, 2);
+                if (data && typeof data.content === "string") {
+                    document.getElementById("output").innerText = data.content; // ✅ Shows only "content"
+                } else {
+                    document.getElementById("output").innerText = "Unexpected response format";
+                }
             })
             .catch(error => {
-                document.getElementById("output").innerText = "Error: " + error;
+                document.getElementById("output").innerText = "Error: " + error.message;
             });
         }
     </script>
@@ -122,7 +126,7 @@ def upload_file():
     response = send_to_helpingai(text)
     content = response.get("choices", [{}])[0].get("message", {}).get("content", "")
 
-    return jsonify({"content": content})  # ✅ Fixed: Return JSON
+    return {"content": content})  # ✅ Fixed: Return JSON
 
 if __name__ == "__main__":
     print("[DEBUG] Starting Flask server...")
