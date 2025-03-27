@@ -56,14 +56,14 @@ def home():
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Resume Analyzer</title>
-    <script defer>
+    <script>
         function uploadFile() {
             const fileInput = document.getElementById("fileInput");
-            if (!fileInput.files.length) {
+            if (!fileInput || !fileInput.files.length) {
                 alert("Please select a file.");
                 return;
             }
-            
+
             const formData = new FormData();
             formData.append("file", fileInput.files[0]);
 
@@ -74,7 +74,7 @@ def home():
             .then(response => response.json()) // Expecting JSON response
             .then(data => {
                 if (data && typeof data.content === "string") { 
-                    document.getElementById("output").innerHTML = data.content.replace(/\n/g, "<br>");
+                    document.getElementById("output").innerHTML = (data.content || "").replace(/\n/g, "<br>");
                 } else {
                     document.getElementById("output").innerText = "Unexpected response format";
                 }
