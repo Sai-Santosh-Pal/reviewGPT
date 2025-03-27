@@ -74,7 +74,7 @@ def home():
             .then(response => response.json()) // Expecting JSON response
             .then(data => {
                 if (data && typeof data.content === "string") { 
-                    document.getElementById("output").innerHTML = (data.content || "").replace(/\n/g, "<br>");
+                    document.getElementById("output").innerHTML = (data.content || "").replace("\n", "<br>");
                 } else {
                     document.getElementById("output").innerText = "Unexpected response format";
                 }
@@ -124,7 +124,7 @@ def upload_file():
     response = send_to_helpingai(text)
     content = response.get("choices", [{}])[0].get("message", {}).get("content", "")
 
-    return content
+    return jsonify({"content": content})  # ✅ Fixed: Return JSON
 
 if __name__ == "__main__":
     print("[DEBUG] Starting Flask server...")
