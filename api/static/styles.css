@@ -1,16 +1,14 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+
 * {
-color: #fff; font-family: Inter;  letter-spacing: -0.7px 
+    color: #fff;
+    font-family: Inter, sans-serif;
+    letter-spacing: -0.7px;
 }
 
-/* styles.css */
-#output {
-opacity: 0
-}
 body {
     background-color: #121212;
     color: #ffffff;
-    font-family: Inter, sans-serif;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -22,21 +20,18 @@ body {
 
 h2 {
     margin-bottom: 20px;
-    font-size: 50px
+    font-size: 50px;
 }
 
-/* File Upload Wrapper */
 .file-input-wrapper {
     position: relative;
     display: inline-block;
 }
 
-/* Hidden File Input */
 input[type="file"] {
     display: none;
 }
 
-/* Styled Label (Clickable Button) */
 .file-label {
     display: inline-block;
     padding: 10px 15px;
@@ -47,21 +42,20 @@ input[type="file"] {
     transition: background 0.3s;
     width: 200px;
     text-align: center;
-        font-size: 17px
+    font-size: 17px;
 }
 
 .file-label:hover {
     background-color: #0056b3;
 }
 
-/* File Name Display */
 #fileName {
     margin-top: 5px;
     font-size: 20px;
     color: #bbbbbb;
 }
 
-#tone {
+#tone, button {
     width: 200px;
     padding: 10px;
     border: 2px solid #0056b3;
@@ -72,7 +66,12 @@ input[type="file"] {
     outline: none;
     transition: 0.3s;
 }
-#tone:hover {
+
+#reviewBox {
+opacity: 0;
+}
+
+#tone:hover, button:hover {
     background-color: #0056b3;
 }
 
@@ -80,19 +79,13 @@ button {
     margin-top: 10px;
     padding: 10px 20px;
     border: none;
-    background: #007bff;
     color: white;
     border-radius: 5px;
-    cursor: pointer;
     transition: background 0.3s ease;
-    font-size: 17px
+    font-size: 17px;
 }
 
-button:hover {
-    background: #0056b3;
-}
-
-#output {
+#output, #chat, #reviewBox {
     margin-top: 20px;
     white-space: pre-wrap;
     text-align: left;
@@ -103,11 +96,101 @@ button:hover {
     overflow-wrap: break-word;
 }
 
-/* Responsive Design */
+#chat {
+    border: 1px solid #333;
+    width: 300px;
+    height: 400px;
+    overflow-y: auto;
+    padding: 10px;
+}
+
+#reviewBox {
+    border: 1px solid #333;
+    padding: 10px;
+    margin-top: 10px;
+    width: 300px;
+    text-align: center;
+    font-size: 18px;
+}
+
 @media (max-width: 600px) {
-    input[type="file"],
-    button {
+    input[type="file"], button {
         width: 90%;
     }
 }
 
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+
+* {
+    color: #fff;
+    font-family: Inter, sans-serif;
+    letter-spacing: -0.7px;
+    box-sizing: border-box;
+}
+
+body {
+    background-color: #121212;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    margin: 0;
+    text-align: center;
+}
+
+h2 {
+    font-size: 50px;
+    margin-bottom: 20px;
+}
+
+.file-input-wrapper {
+    position: relative;
+    display: inline-block;
+}
+
+input[type="file"] {
+    display: none;
+}
+
+.file-label, button {
+    display: inline-block;
+    padding: 10px 15px;
+    background-color: #007bff;
+    color: #ffffff;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s;
+    width: 200px;
+    text-align: center;
+    font-size: 17px;
+    border: none;
+    margin-top: 10px;
+}
+
+.file-label:hover, button:hover {
+    background-color: #0056b3;
+}
+
+#fileName {
+    margin-top: 5px;
+    font-size: 20px;
+    color: #bbbbbb;
+}
+
+#chat, #reviewBox {
+    border: 1px solid #444;
+    background: #1e1e1e;
+    padding: 15px;
+    border-radius: 5px;
+    width: 300px;
+    height: 400px;
+    overflow-y: auto;
+    margin-top: 10px;
+    text-align: left;
+}
+
+#reviewBox {
+    height: auto;
+    min-height: 50px;
+}
