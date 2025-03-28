@@ -251,7 +251,7 @@ def upload_resume():
             <!DOCTYPE html>
             <html lang="en">
             <head>
-                <title>Interview</title>
+                <title>Interview - ReviewGPT</title>
                 <link rel="stylesheet" href="static/interview.css">
                 <script>
                     let credits = localStorage.getItem("credits") ? parseInt(localStorage.getItem("credits")) : 100;
@@ -336,7 +336,7 @@ def upload_resume():
     <!DOCTYPE html>
     <html lang="en">
     <head>
-        <title>Upload Resume</title>
+        <title>Interview - ReviewGPT</title>
         <link rel="stylesheet" type="text/css" href="static/upload.css">
         <script>
             function openFileDialog() {
@@ -350,7 +350,7 @@ def upload_resume():
         </script>
     </head>
     <body>
-        <h2>Upload Your Resume</h2>
+        <h2>Interview - ReviewGPT</h2>
         <form method="post" enctype="multipart/form-data">
             <input type="file" id="resume" name="resume" required onchange="updateFileName()" hidden>
             <button type="button" onclick="openFileDialog()">Choose File</button>
