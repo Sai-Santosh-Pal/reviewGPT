@@ -19,17 +19,24 @@ def pdf_to_text(file):
     text = ""
     try:
         file_stream = file.read()  # Read file into memory
-        print("[DEBUG] File read into memory")
         with fitz.open(stream=file_stream, filetype="pdf") as doc:
-            print("[DEBUG] PDF opened successfully")
             for page in doc:
                 text += page.get_text("text") + "\n"
     except Exception as e:
-        print(f"[ERROR] Failed to process PDF: {e}")
         return None
     return clean_text(text)  # Clean extracted text
 
-def send_to_helpingai(text):
+def send_to_helpingai(text, tone):
+    tone_prompts = {
+        "friendly": "Write a warm and friendly review of my resume, encouraging me with positive feedback and constructive suggestions.",
+        "roast": "Critique my resume harshly, like a brutal roast. Be savage but insightful.",
+        "advice": "Provide professional career advice based on my resume. Give actionable tips for improvement.",
+        "formal": "Give me a formal and professional review of my resume with detailed recommendations.",
+    }
+    
+    prompt = tone_prompts.get(tone, tone_prompts["friendly"])  # Default to friendly if tone is invalid
+    prompt += f" Here is my resume text and review this: {text}"
+    
     response = requests.post(
         'https://api.helpingai.co/v1/chat/completions',
         headers={
@@ -38,9 +45,7 @@ def send_to_helpingai(text):
         },
         json={
             'model': 'helpingai3-raw',
-            'messages': [
-                {'role': 'user', 'content': "This is my CV. Write a constructive review about my resume and suggest recommendations. Keep the tone light and cheerful. " + text}
-            ],
+            'messages': [{'role': 'user', 'content': prompt}],
             'temperature': 0.7,
             'max_tokens': 150
         }
@@ -58,43 +63,54 @@ def home():
     <title>Resume Analyzer</title>
     <script>
         function uploadFile() {
-            document.getElementById("output").innerText = "Loading..";
-
             const fileInput = document.getElementById("fileInput");
+            const toneSelect = document.getElementById("tone");
             if (!fileInput || !fileInput.files.length) {
                 alert("Please select a file.");
                 return;
             }
-        
+
+            document.getElementById("output").innerText = "Loading..";
+            document.getElementById("output").style.opacity = 1;
             const formData = new FormData();
             formData.append("file", fileInput.files[0]);
-        
-            fetch("https://reviewgpt.vercel.app/api/upload", {
+            formData.append("tone", toneSelect.value); // Send selected tone
+
+            fetch("/api/upload", {
                 method: "POST",
                 body: formData
             })
-            .then(response => response.json()) // Ensure JSON response
+            .then(response => response.json()) 
             .then(data => {
-                if (data && typeof data.content === "string") {
-                    document.getElementById("output").innerText = data.content; // ✅ Shows only "content"
-                } else {
-                    document.getElementById("output").innerText = "Unexpected response format";
-                }
+                document.getElementById("output").innerText = data.content || "Unexpected response format";
             })
             .catch(error => {
                 document.getElementById("output").innerText = "Error: " + error.message;
             });
         }
+
+        function updateFileName(event) {
+            const fileNameDisplay = document.getElementById("fileName");
+            fileNameDisplay.innerText = event.target.files.length ? event.target.files[0].name : "No file selected";
+        }
     </script>
-    <style>
-        body { font-family: Arial, sans-serif; text-align: center; padding: 50px; }
-        #output { margin-top: 20px; white-space: pre-wrap; text-align: left; display: inline-block; max-width: 80%; }
-    </style>
-    
+    <link rel="stylesheet" href="/static/styles.css">
 </head>
 <body>
     <h2>Upload Your Resume (PDF)</h2>
-    <input type="file" id="fileInput" accept="application/pdf">
+    
+    <label for="fileInput" class="file-label">Choose a file</label>
+    <input type="file" id="fileInput" accept="application/pdf" onchange="updateFileName(event)">
+    <p id="fileName">No file selected</p>
+
+    <label for="tone">Select Tone:</label>
+    <select id="tone">
+        <option value="friendly">Friendly</option>
+        <option value="roast">Roast</option>
+        <option value="advice">Advice</option>
+        <option value="formal">Formal</option>
+    </select>
+
     <button onclick="uploadFile()">Upload</button>
     <div id="output"></div>
 </body>
@@ -103,32 +119,27 @@ def home():
 
 @app.route("/api/upload", methods=["POST"])
 def upload_file():
-    print("[DEBUG] Received upload request")
-    if "file" not in request.files:
-        print("[ERROR] No file part in request")
-        return jsonify({"error": "No file part"}), 400
+    if "file" not in request.files or "tone" not in request.form:
+        return jsonify({"error": "Missing file or tone"}), 400
 
     file = request.files["file"]
-    
+    tone = request.form["tone"]
+
     if file.filename == "":
-        print("[ERROR] No selected file")
         return jsonify({"error": "No selected file"}), 400
 
     if not file.filename.lower().endswith(".pdf"):
-        print("[ERROR] Invalid file type")
         return jsonify({"error": "Only PDF files are allowed"}), 400
 
     text = pdf_to_text(file)
     if text is None:
         return jsonify({"error": "Failed to extract text"}), 500
 
-    print("[DEBUG] Successfully extracted text")
-    response = send_to_helpingai(text)
+    response = send_to_helpingai(text, tone)
     content = response.get("choices", [{}])[0].get("message", {}).get("content", "")
 
-    return jsonify({"content": content}) # ✅ Fixed: Return JSON
+    return jsonify({"content": content}) 
 
 if __name__ == "__main__":
-    print("[DEBUG] Starting Flask server...")
-    from waitress import serve
-    serve(app, host="0.0.0.0", port=5000)
+    app.run(debug=True)
+
