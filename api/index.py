@@ -129,7 +129,7 @@ function startListening() {
 }
 
 function continueInterview(userAnswer) {
-    fetch("http://127.0.0.1:5000/api/interview", {
+    fetch("https://reviewgpt.vercel.app/api/interview", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ answer: userAnswer, resume_text: "" }) 
