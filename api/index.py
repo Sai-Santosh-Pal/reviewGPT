@@ -10,8 +10,11 @@ app = Flask(__name__)
 CORS(app)  # Enable CORS for frontend requests
 
 def extract_text_from_pdf(pdf_path):
-    doc = fitz.open(pdf_path)
-    return " ".join([page.get_text("text") for page in doc])
+    try:
+        doc = fitz.open(stream=pdf_path.read(), filetype="pdf")
+        return " ".join([page.get_text("text") for page in doc])
+    except Exception as e:
+        return str(e)
 
 def clean_text(text):
     text = unicodedata.normalize("NFKD", text)  # Normalize Unicode characters
@@ -129,7 +132,7 @@ function startListening() {
 }
 
 function continueInterview(userAnswer) {
-    fetch("https://reviewgpt.vercel.app/api/interview", {
+    fetch("http://127.0.0.1:5000/api/interview", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ answer: userAnswer, resume_text: "" }) 
@@ -242,11 +245,8 @@ def upload_resume():
     if request.method == 'POST':
         file = request.files['resume']
         if file:
-            file_path = "temp_resume.pdf"
-            file.save(file_path)
-            resume_text = extract_text_from_pdf(file_path)
+            resume_text = extract_text_from_pdf(file)
             first_question = ask_ai_for_questions(resume_text)
-            os.remove(file_path)
             return '''
             <!DOCTYPE html>
             <html lang="en">
@@ -354,7 +354,7 @@ def upload_resume():
         <form method="post" enctype="multipart/form-data">
             <input type="file" id="resume" name="resume" required onchange="updateFileName()" hidden>
             <button type="button" onclick="openFileDialog()">Choose File</button>
-            <span id="fileName">No file chosen</span>
+            <span id="fileName">No file chose</span>
             <button id="start" type="submit">Upload and Start Interview</button>
         </form>
     </body>
